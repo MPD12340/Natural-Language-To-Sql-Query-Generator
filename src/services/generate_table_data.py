@@ -6,22 +6,13 @@ inspector = inspect(engine)
 
 
 def get_all_models():
-    model_info_list = []
-
+    schema_lines = []
     for mapper in Base.registry.mappers:
         model_class = mapper.class_
-        model_name = model_class.__name__
         table_name = getattr(model_class, "__tablename__", None)
-
         if table_name:
-            column_details = [
-                f"{col.name} ({col.type})" for col in model_class.__table__.columns
-            ]
-            info = (
-                f"Model: `{model_name}`"
-                f"Table: `{table_name}`"
-                f"Columns: {', '.join(column_details)}"
-            )
-            model_info_list.append(info)
-
-    return model_info_list
+            schema_lines.append(f"Table: {table_name}")
+            for col in model_class.__table__.columns:
+                schema_lines.append(f"- {col.name} ({col.type})")
+            schema_lines.append("")  
+    return "\n".join(schema_lines)
